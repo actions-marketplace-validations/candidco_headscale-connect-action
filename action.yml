@@ -23,7 +23,7 @@ inputs:
   headscale-version:
     description: "Headscale Version"
     required: false
-    default: "0.25.1"
+    default: "0.27.1"
   headscale-os-arch:
     description: "Headscale OS and Architecture (see https://github.com/juanfont/headscale/releases for options)"
     required: false
@@ -61,9 +61,18 @@ runs:
         HEADSCALE_PREAUTHKEY_EXPIRATION: ${{ inputs.headscale-preauthkey-expiration }}
       run: |
         echo "Creating user $HEADSCALE_USER..."
-        headscale -c $HOME/.headscale/config.yaml user create $HEADSCALE_USER || true
-        echo "Creating preauthkey for user $HEADSCALE_USER..."
-        TAILSCALE_CLI_AUTH_KEY=$(headscale -c $HOME/.headscale/config.yaml preauthkey create --ephemeral --user $HEADSCALE_USER --expiration $HEADSCALE_PREAUTHKEY_EXPIRATION -o json | jq -r .key)
+        headscale -c $HOME/.headscale/config.yaml users create $HEADSCALE_USER || true
+        
+        # Get user ID (required for headscale 0.27.1+)
+        echo "Getting user ID for $HEADSCALE_USER..."
+        USER_ID=$(headscale -c $HOME/.headscale/config.yaml users list --name $HEADSCALE_USER -o json | jq -r '.[0].id')
+        if [ -z "$USER_ID" ] || [ "$USER_ID" = "null" ]; then
+          echo "Error: Could not find user ID for $HEADSCALE_USER"
+          exit 1
+        fi
+        
+        echo "Creating preauthkey for user $HEADSCALE_USER (ID: $USER_ID)..."
+        TAILSCALE_CLI_AUTH_KEY=$(headscale -c $HOME/.headscale/config.yaml preauthkeys create --ephemeral --user $USER_ID --expiration $HEADSCALE_PREAUTHKEY_EXPIRATION -o json | jq -r .key)
         # Mask the auth key in the logs
         echo "::add-mask::$TAILSCALE_CLI_AUTH_KEY"
         echo "TAILSCALE_CLI_AUTH_KEY=$TAILSCALE_CLI_AUTH_KEY" >> $GITHUB_ENV
