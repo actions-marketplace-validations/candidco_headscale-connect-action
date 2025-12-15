@@ -35,7 +35,7 @@ The following inputs can be used as `step.with` keys:
 | `headscale-cli-api-key`        | String |                     | The API key for the Headscale CLI.                                                            |
 | `headscale-user`               | String | `github-actions`    | The user to create or use in Headscale.                                                       |
 | `headscale-preauthkey-expiration` | String | `30m`               | The expiration time for the preauth key.                                                      |
-| `headscale-version`            | String | `0.25.1`            | The version of Headscale to install.                                                          |
+| `headscale-version`            | String | `0.27.1`            | The version of Headscale to install (minimum supported: 0.27.1).                              |
 | `headscale-os-arch`            | String | `linux_amd64`       | The OS and architecture for the Headscale binary.                                             |
 
 ## Outputs
