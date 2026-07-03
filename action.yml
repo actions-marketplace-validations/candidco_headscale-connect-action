@@ -104,7 +104,7 @@ runs:
         echo "TAILSCALE_CLI_AUTH_KEY=$TAILSCALE_CLI_AUTH_KEY" >> $GITHUB_ENV
 
     - id: connect-tailscale
-      uses: gacts/run-and-post-run@v1.4.2
+      uses: gacts/run-and-post-run@v1.4.4
       with:
         run: |
           echo "Connecting to Tailscale..."
